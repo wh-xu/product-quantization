@@ -10,13 +10,11 @@ def normalize(vecs):
     normalized_vecs = np.divide(vecs, norms_matrix, out=np.zeros_like(vecs), where=norms_matrix != 0)  # divide by zero problem
     return norms, normalized_vecs
 
-
 def zero_mean(X, Q):
     mean = X.mean(axis=0, keepdims=True)
     X = X - mean
     Q = Q - mean
     return X, Q
-
 
 def random_rotate(X, Q):
     R = ortho_group.rvs(dim=len(X[0]))
@@ -25,13 +23,11 @@ def random_rotate(X, Q):
     Q = R.dot(Q.transpose()).transpose()
     return X, Q
 
-
 def scale(X, Q):
     scale = np.max(np.linalg.norm(X, axis=1))
     X /= scale
     Q /= scale
     return X, Q
-
 
 def one_half_coeff_scale(X, Q):
     mean = np.mean(np.absolute(X))
@@ -84,7 +80,6 @@ def e2m_transform(X, Q):
     X = np.append(X, X_plus, axis=1)
     Q = np.append(Q, Q_plus, axis=1)
     return X, Q
-
 
 def e2m_mahalanobis(X):
     X_plus = np.full((len(X), 1), fill_value=-0.5, dtype=np.float32)

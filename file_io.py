@@ -1,6 +1,6 @@
 import numpy as np
 import struct
-
+import h5py
 
 def ivecs_read(fname):
     a = np.fromfile(fname, dtype='int32')
@@ -97,3 +97,9 @@ def loader(data_set='audio', top_k=20, ground_metric='euclid', folder='../data/'
         G = None
     return X, T, Q, G
 
+
+def hdf5_read(fname, topk=10):
+    f = h5py.File(fname, 'r')
+
+    base, query, dist, nns = f['train'], f['test'], f['distances'][:, 0:topk], f['neighbors'][:, 0:topk]
+    return np.array(base), None, np.array(query), nns

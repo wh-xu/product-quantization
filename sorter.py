@@ -4,33 +4,33 @@ import numba as nb
 import math
 import tqdm
 
-@nb.jit
+@nb.njit
 def arg_sort(distances):
     top_k = min(131072, len(distances)-1)
     indices = np.argpartition(distances, top_k)[:top_k]
     return indices[np.argsort(distances[indices])]
 
 
-@nb.jit
+@nb.njit
 def product_arg_sort(q, compressed):
     distances = np.dot(compressed, -q)
     return arg_sort(distances)
 
 
-@nb.jit
+@nb.njit
 def angular_arg_sort(q, compressed, norms_sqr):
     norm_q = np.linalg.norm(q)
     distances = np.dot(compressed, q) / (norm_q * norms_sqr)
     return arg_sort(distances)
 
 
-@nb.jit
+@nb.njit
 def euclidean_arg_sort(q, compressed):
     distances = np.linalg.norm(q - compressed, axis=1)
     return arg_sort(distances)
 
 
-@nb.jit
+@nb.njit
 def sign_arg_sort(q, compressed):
     distances = np.empty(len(compressed), dtype=np.int32)
     for i in range(len(compressed)):
@@ -38,7 +38,7 @@ def sign_arg_sort(q, compressed):
     return arg_sort(distances)
 
 
-@nb.jit
+@nb.njit
 def euclidean_norm_arg_sort(q, compressed, norms_sqr):
     distances = norms_sqr - 2.0 * np.dot(compressed, q)
     return arg_sort(distances)
@@ -57,7 +57,8 @@ def parallel_sort(metric, compressed, Q, X, norms_sqr=None):
 
     rank = np.empty((Q.shape[0], min(131072, compressed.shape[0]-1)), dtype=np.int32)
 
-    p_range = tqdm.tqdm(nb.prange(Q.shape[0]))
+    # p_range = tqdm.tqdm(nb.prange(Q.shape[0]))
+    p_range = nb.prange(Q.shape[0])
 
     if metric == 'product':
         for i in p_range:
@@ -79,7 +80,7 @@ def parallel_sort(metric, compressed, Q, X, norms_sqr=None):
     return rank
 
 
-@nb.jit
+@nb.njit
 def true_positives(topK, Q, G, T):
     result = np.empty(shape=(len(Q)))
     for i in nb.prange(len(Q)):

@@ -8,7 +8,8 @@ class PQ(object):
     def __init__(self, M, Ks, verbose=True):
         assert 0 < Ks <= 2 ** 32
         self.M, self.Ks, self.verbose = M, Ks, verbose
-        self.code_dtype = np.uint8 if Ks <= 2 ** 8 else (np.uint16 if Ks <= 2 ** 16 else np.uint32)
+        # self.code_dtype = np.uint8 if Ks <= 2 ** 8 else (np.uint16 if Ks <= 2 ** 16 else np.uint32)
+        self.code_dtype = np.uint16
         self.codewords = None
         self.Ds = None
         self.Dim = -1
@@ -29,7 +30,7 @@ class PQ(object):
         self.Ds = np.cumsum(dims_width)     # prefix sum
         self.Ds = np.insert(self.Ds, 0, 0)  # insert zero at beginning
 
-        # [m][ks][ds]: m-th subspace, ks-the codeword, ds-th dim
+        # [m][ks][ds]: m-th subspace, ks-th codeword, ds-th dim
         self.codewords = np.zeros((self.M, self.Ks, np.max(dims_width)), dtype=np.float32)
         for m in range(self.M):
             if self.verbose:
